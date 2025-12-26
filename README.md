@@ -181,6 +181,9 @@ Pipeline trigger: every push to `main`.
 5. **Post-ring visualization**  
    ![Post ring diagram](images/post%20ring.png)
 
+6. **Dependency scan (Bandit)**  
+   ![Bandit dependency scan screenshot](images/partie10_bib.png)
+
 ---
 
 Need more details or automation steps? Let me know! I can help extend the pipeline, deploy to cloud environments, or harden the Flask app further.
