@@ -172,8 +172,8 @@ Pipeline trigger: every push to `main`.
 2. **Detailed workflow slide**  
    ![Workflow slide](images/image%202.png)
 
-3. **UI mockup**  
-   ![Application mockup](images/image3.png)
+3. **Sucesss**  
+   ![Application sucess](images/image3.png)
 
 4. **Index page preview**  
    ![Index page screenshot](images/image%20index.png)
