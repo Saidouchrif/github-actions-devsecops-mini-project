@@ -181,7 +181,7 @@ Pipeline trigger: every push to `main`.
 5. **Post-ring visualization**  
    ![Post ring diagram](images/post%20ring.png)
 
-6. **Dependency scan (Bandit)**  
+6. **Dependency scan **  
    ![Bandit dependency scan screenshot](images/partie10_bib.png)
 
 ---
