@@ -56,13 +56,13 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    A[Push to main] --> B[Checkout code]
-    B --> C[CodeQL init + analyze]
-    C --> D[Bandit high-severity scan]
-    D --> E[Docker build (python:3.9-slim)]
-    E --> F[Trivy image scan CRITICAL/HIGH]
-    F -->|No vulns| G[Ready for deployment/manual release]
-    F -->|Vulns found| H[Fail pipeline + surface findings]
+    A["Push to main"] --> B["Checkout code"]
+    B --> C["CodeQL init + analyze"]
+    C --> D["Bandit high-severity scan"]
+    D --> E["Docker build (python:3.9-slim)"]
+    E --> F["Trivy image scan CRITICAL/HIGH"]
+    F -->|No vulns| G["Ready for deployment/manual release"]
+    F -->|Vulns found| H["Fail pipeline + surface findings"]
 ```
 
 **What happens in the pipeline**
