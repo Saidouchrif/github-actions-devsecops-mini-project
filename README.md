@@ -28,22 +28,50 @@ Lightweight Flask application packaged in Docker and guarded by a security-first
 
 ## Architecture & Workflow
 
-```
-User  Flask UI (index.html)  /ping endpoint  subprocess ping  response shown
+### 1. Application flow (UML Sequence)
 
-GitHub Actions
-     Checkout
-         CodeQL init + analyze
-             Bandit (Python SAST)
-                 Docker build (python:3.9-slim)
-                     Trivy image scan (fail on HIGH/CRITICAL)
+```mermaid
+sequenceDiagram
+    actor U as User Browser
+    participant UI as Flask UI (index.html)
+    participant API as Flask /ping endpoint
+    participant OS as OS ping utility
+
+    U->>UI: Submit host through HTML form
+    UI->>API: POST /ping with host
+    API->>API: Regex validation (allow letters, digits, . and -)
+    API->>OS: subprocess.run(["ping","-c","1",host])
+    OS-->>API: Ping stdout / stderr
+    API-->>UI: HTTP response (stdout text or error)
+    UI-->>U: Render result on page
 ```
 
-**Data flow**
-1. Users interact with the single-page UI (`templates/index.html`) that posts to `/ping`.
-2. `app.py` validates the hostname via regex and executes `ping -c 1 <host>` using `subprocess.run`.
-3. Containers are built via the provided `Dockerfile` and deployed (manually) or scanned via Trivy.
-4. GitHub Actions orchestrates all security gates before allowing deployment.
+**Step-by-step explanation**
+1. The user interface in `templates/index.html` renders the single form and posts to `/ping` without reloading the page structure.
+2. `app.py` receives the POST request, sanitizes the hostname via regex, and rejects anything containing characters outside `[a-zA-Z0-9.\-]`.
+3. Once validated, the endpoint launches the system `ping` command with a single packet (`-c 1`) using `subprocess.run`.
+4. The command output (success, timeout, or OS-level error) is streamed back as the HTTP response body, so users immediately see raw ping statistics.
+
+### 2. CI/CD & security workflow (UML Activity)
+
+```mermaid
+flowchart TD
+    A[Push to main] --> B[Checkout code]
+    B --> C[CodeQL init + analyze]
+    C --> D[Bandit high-severity scan]
+    D --> E[Docker build (python:3.9-slim)]
+    E --> F[Trivy image scan CRITICAL/HIGH]
+    F -->|No vulns| G[Ready for deployment/manual release]
+    F -->|Vulns found| H[Fail pipeline + surface findings]
+```
+
+**What happens in the pipeline**
+1. Every push to `main` triggers `.github/workflows/devsecops.yml`.
+2. CodeQL performs static analysis against the Python sources before any build occurs.
+3. Bandit runs in high-severity mode on the `app` directory to catch insecure code patterns.
+4. Docker builds the image defined in `Dockerfile`; this ensures the artifact that is scanned matches what will eventually run.
+5. Trivy inspects the freshly built image and blocks the job if any HIGH or CRITICAL vulnerabilities remain (because `exit-code: 1`).
+6. Only when all gates succeed is the build considered safe to deploy or tag.
 
 ---
 
