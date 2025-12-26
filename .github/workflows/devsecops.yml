@@ -13,10 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 📥 Récupération du code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 🔐 CodeQL
+    # 🔐 Analyse SAST avec CodeQL
     - name: Init CodeQL
       uses: github/codeql-action/init@v3
       with:
@@ -25,18 +26,27 @@ jobs:
     - name: Run CodeQL
       uses: github/codeql-action/analyze@v3
 
-    # 🔍 Bandit
+    # 🔍 Analyse sécurité Python avec Bandit
     - name: Install Bandit
       run: pip install bandit
 
     - name: Run Bandit
       run: bandit -r app --severity-level high
 
-    # 🐳 Docker build
+    ############################################
+    # 🔎 Scan des dépendances Python (Safety)
+    ############################################
+    - name: Install Safety
+      run: pip install safety
+
+    - name: Dependency vulnerability scan
+      run: safety check -r requirements.txt
+
+    # 🐳 Build de l’image Docker
     - name: Build Docker image
       run: docker build -t devsecops-flask .
 
-    # 🛡 Trivy
+    # 🛡 Scan de l’image Docker avec Trivy
     - name: Trivy scan
       uses: aquasecurity/trivy-action@master
       with:
